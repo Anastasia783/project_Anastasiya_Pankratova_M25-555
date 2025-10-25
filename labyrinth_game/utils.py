@@ -1,5 +1,6 @@
 import math
-from .constants import ROOMS, COMMANDS, ALTERNATIVE_ANSWERS
+
+from .constants import ALTERNATIVE_ANSWERS, COMMANDS, ROOMS
 
 
 def pseudo_random(seed, modulo):
@@ -82,14 +83,24 @@ def describe_current_room(game_state):
     description = f"=== {current_room.upper()} ===\n"
     description += f"{room['description']}\n\n"
     
+    # ПРЕДМЕТЫ
     if room['items']:
-        description += "Заметные предметы: " + ", ".join(room['items']) + "\n"
+        description += " Заметные предметы: " + ", ".join(room['items']) + "\n"
+    else:
+        description += " Заметные предметы: нет\n"
     
+    # ВЫХОДЫ - показываем направления и куда они ведут
     if room['exits']:
-        description += "Выходы: " + ", ".join(room['exits'].keys()) + "\n"
+        exits_list = []
+        for direction, target_room in room['exits'].items():
+            exits_list.append(f"{direction} → {target_room}")
+        description += " Выходы: " + ", ".join(exits_list) + "\n"
+    else:
+        description += " Выходы: нет\n"
     
+    # ЗАГАДКА
     if room['puzzle'] and current_room not in game_state.get('solved_puzzles', set()):
-        description += "\nКажется, здесь есть загадка (используйте команду solve).\n"
+        description += "\n Кажется, здесь есть загадка (используйте команду solve).\n"
     
     return description
 
@@ -109,41 +120,47 @@ def solve_puzzle(game_state):
     print(f"\n {question}")
     
     from .player_actions import get_input
-    user_answer = get_input("Ваш ответ: ").strip().lower()
     
-    # Проверяем альтернативные варианты ответов
-    is_correct = False
-    if correct_answer in ALTERNATIVE_ANSWERS:
-        is_correct = user_answer in ALTERNATIVE_ANSWERS[correct_answer]
-    else:
-        is_correct = user_answer == correct_answer.lower()
-    
-    if is_correct:
-        game_state.setdefault('solved_puzzles', set()).add(current_room)
+    while True:
+        user_answer = get_input("Ваш ответ: ").strip().lower()
         
-        # Награда за решение загадки в зависимости от комнаты
-        rewards = {
-            'hall': 'Вы получаете бронзовый амулет!',
-            'trap_room': 'Ловушка деактивирована! Вы в безопасности.',
-            'library': 'Вы находите скрытый свиток с картой!',
-            'mirror_room': 'Зеркала перестают искажать реальность.',
-            'crystal_cave': 'Кристаллы начинают светиться ярче.',
-            'alchemy_lab': 'Вы находите рецепт могущественного зелья!',
-            'garden': 'Магические растения расцветают.'
-        }
+        if not user_answer:
+            return "Вы отказались от решения загадки."
         
-        reward_message = rewards.get(current_room, "Правильно! Загадка решена.")
+        # Проверяем альтернативные варианты ответов
+        is_correct = False
+        if correct_answer in ALTERNATIVE_ANSWERS:
+            is_correct = user_answer in ALTERNATIVE_ANSWERS[correct_answer]
+        else:
+            is_correct = user_answer == correct_answer.lower()
         
-        if current_room == 'treasure_room':
-            return attempt_open_treasure(game_state)
-        return reward_message
-    else:
-        # В trap_room неверный ответ активирует ловушку
-        if current_room == 'trap_room':
-            trap_result = trigger_trap(game_state)
-            return f"Неверный ответ! {trap_result}"
-        return "Неверно. Попробуйте снова."
-
+        if is_correct:
+            game_state.setdefault('solved_puzzles', set()).add(current_room)
+            
+            # Награда за решение загадки в зависимости от комнаты
+            rewards = {
+                'hall': 'Вы получаете бронзовый амулет!',
+                'trap_room': 'Ловушка деактивирована! Вы в безопасности.',
+                'library': 'Вы находите скрытый свиток с картой!',
+                'mirror_room': 'Зеркала перестают искажать реальность.',
+                'crystal_cave': 'Кристаллы начинают светиться ярче.',
+                'alchemy_lab': 'Вы находите рецепт могущественного зелья!',
+                'garden': 'Магические растения расцветают.'
+            }
+            
+            reward_message = rewards.get(current_room, "Правильно! Загадка решена.")
+            
+            if current_room == 'treasure_room':
+                return attempt_open_treasure(game_state)
+            return reward_message
+        else:
+            # В trap_room неверный ответ активирует ловушку
+            if current_room == 'trap_room':
+                trap_result = trigger_trap(game_state)
+                return f"Неверный ответ! {trap_result}"
+            
+            # Предлагаем попробовать еще раз или выйти
+            print("Неверно. Попробуйте еще раз или нажмите Enter чтобы выйти.")
 
 def attempt_open_treasure(game_state):
     """Логика открытия сундука с сокровищами."""
@@ -165,7 +182,6 @@ def attempt_open_treasure(game_state):
         user_code = get_input("Введите код: ").strip()
         _, correct_code = room['puzzle']
         
-        # Проверяем альтернативные варианты кода
         if (user_code == correct_code or 
             (correct_code in ALTERNATIVE_ANSWERS and 
              user_code in ALTERNATIVE_ANSWERS[correct_code])):
