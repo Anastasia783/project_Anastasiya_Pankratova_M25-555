@@ -1,17 +1,17 @@
 install:
-poetry install
+	poetry install
 
 project:
-poetry run python -m labyrinth_game.main
+	poetry run python -m labyrinth_game.main
 
 lint:
-poetry run ruff check .
+	poetry run ruff check .
 
 build:
-poetry build
+	poetry build
 
 publish:
-poetry publish --dry-run
+	poetry publish --dry-run
 
 package-install:
-python -m pip install --force-reinstall dist/*.whl
+	python -m pip install --force-reinstall dist/*.whl
