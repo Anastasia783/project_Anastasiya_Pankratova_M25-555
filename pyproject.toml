@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "labyrinth-game"
+version = "0.1.0"
+description = "Текстовая приключенческая игра ''Лабиринт сокровищ''"
+authors = ["Игрок <player@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+project = "labyrinth_game.main:main"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = ["venv", ".venv", "dist", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
