@@ -2,7 +2,7 @@
 name = "labyrinth-game"
 version = "0.1.0"
 description = "Текстовая приключенческая игра ''Лабиринт сокровищ''"
-authors = ["Игрок <player@example.com>"]
+authors = ["Anastasiya_Pankratova"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

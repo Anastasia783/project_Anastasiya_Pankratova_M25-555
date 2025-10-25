@@ -1,14 +1,13 @@
-# Virtual environment
 .venv/
 venv/
 env/
 
-# Distribution
+
 dist/
 build/
 *.egg-info/
 
-# Cache
+
 __pycache__/
 *.pyc
 .python-version
@@ -16,13 +15,22 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# IDE
 .vscode/
 .idea/
 
-# OS
+
 .DS_Store
 Thumbs.db
 
-# Poetry
 poetry.lock
+
+*.cast
+
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+
+labyrinth_demo.cast
+demo.cast
